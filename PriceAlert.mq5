@@ -3,6 +3,9 @@
 #property version "1.0"
 #property description "A Simple Price Alert"
 
+const long buttonOFF_chart_id = 0;            // EA turnoff button: char id
+const string buttonOFF_name = "ct_buttonOFF"; // EA turnoff button: name
+
 enum side_t
 {
    LT = 0, // Less than
@@ -69,6 +72,9 @@ int OnInit(void)
    compSymb = userTomql5def(ALARMCOMPARE);
    printf("ALERT when price [%s] than value [%f]", (SIDE == LT ? "less" : "greater"), ALARMPRICE);
 
+   chartButtonOFFSet(buttonOFF_chart_id, buttonOFF_name);
+   ChartRedraw();
+
    return(INIT_SUCCEEDED);
 }
 
@@ -76,15 +82,39 @@ void OnTick(void)
 {
    double lastPrice = NormalizeDouble(SymbolInfoDouble(_Symbol, compSymb), _Digits);
 
-   if(PRINTCURRENT == true) printf("Price: %f | Alarm: %f", lastPrice, ALARMPRICE);
+   if(PRINTCURRENT == true) printf("Price: %f %s Alarm: %f", lastPrice, (SIDE == LT ? "<=" : ">="), ALARMPRICE);
+   
+   Comment("Alarm: " + DoubleToString(ALARMPRICE));
    
    if(SIDE == LT && lastPrice <= ALARMPRICE) doAlert();
    if(SIDE == GT && lastPrice >= ALARMPRICE) doAlert();
+
+   /* TEST
+   MqlTick last_tick;
+   
+   if(SymbolInfoTick(Symbol(),last_tick)){
+      printf("%s | Last[%f] Bid[%f] Ask[%f]", last_tick.time, last_tick.last, last_tick.bid, last_tick.ask);
+   }else Print("SymbolInfoTick() failed, error = ",GetLastError());
+   */
 }
 
 void OnDeinit(const int reason)
 {
+   chartButtonOFFDelete(buttonOFF_chart_id, buttonOFF_name);
+   ChartRedraw();
    Print("ALERT OFF");
+}
+
+void OnChartEvent(const int EventID,
+                  const long &lparam,
+                  const double &dparam,
+                  const string &sparam)
+{
+   if(EventID == CHARTEVENT_OBJECT_CLICK){
+      if(sparam == buttonOFF_name){
+         ExpertRemove();
+      }
+   }
 }
 
 void doAlert(void)
@@ -132,4 +162,30 @@ string PushNotificationErrorMessages(int err)
    }
 
    return(msg);
+}
+
+void chartButtonOFFSet(long chartId, string buttonOFFName)
+{
+   if(ObjectFind(chartId, buttonOFFName) < 0){ // Create if button object does not exist
+      ResetLastError();
+
+      if(ObjectCreate(chartId, buttonOFFName, OBJ_BUTTON, 0, 0, 0) == false){
+         printf("Failed to create the buttonOFF! Error [%s]", GetLastError());
+         return;
+      }
+   }
+
+   ObjectSetString (chartId, buttonOFFName, OBJPROP_TEXT, "OFF!");
+   ObjectSetInteger(chartId, buttonOFFName, OBJPROP_CORNER, CORNER_RIGHT_LOWER);
+   ObjectSetInteger(chartId, buttonOFFName, OBJPROP_ANCHOR, ANCHOR_RIGHT_LOWER);
+   ObjectSetInteger(chartId, buttonOFFName, OBJPROP_XDISTANCE, 53);
+   ObjectSetInteger(chartId, buttonOFFName, OBJPROP_YDISTANCE, 22);
+   ObjectSetInteger(chartId, buttonOFFName, OBJPROP_COLOR, clrYellow);
+   ObjectSetInteger(chartId, buttonOFFName, OBJPROP_BGCOLOR, clrRed);
+   ObjectSetInteger(chartId, buttonOFFName, OBJPROP_BORDER_COLOR, clrYellow);
+}
+
+bool chartButtonOFFDelete(long chartId, string buttonOFFName)
+{
+   return(ObjectDelete(chartId, buttonOFFName));
 }

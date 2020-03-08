@@ -3,7 +3,7 @@
 #property version "1.0"
 #property description "A transaction (trade transaction / request / result) and account (info / orders / positions / deals) dump"
 
-//#include <Trade\Trade.mqh>
+#define BOOLstrYESNO(_xyn__) (_xyn__ == true ? "YES" : "NO")
 
 input bool DUMP_ORDERS = true; // Dump Orders
 input bool DUMP_POSITIONS = true; // Dump Positions
@@ -48,7 +48,7 @@ int OnInit()
       printf("Blocked commission...: %f %s", AccountInfoDouble(ACCOUNT_COMMISSION_BLOCKED), currency);
       
       printf("=== PENDING ORDERS (book) [%s] / DEALS [%s] / POSITIONS [%s] ====================",
-             TrueFalseYESNO(DUMP_ORDERS), TrueFalseYESNO(DUMP_POSITIONS), TrueFalseYESNO(DUMP_DEALS));
+             BOOLstrYESNO(DUMP_ORDERS), BOOLstrYESNO(DUMP_POSITIONS), BOOLstrYESNO(DUMP_DEALS));
 
       if(DUMP_ORDERS    == true) listOrders();
 
@@ -62,15 +62,6 @@ int OnInit()
    }
 
    return(INIT_SUCCEEDED);
-}
-
-string TrueFalseYESNO(bool f)
-{
-   string fs = "YES";
-
-   if(f == false) fs = "NO";
-   
-   return(fs);
 }
 
 void OnTradeTransaction(const MqlTradeTransaction& trans,

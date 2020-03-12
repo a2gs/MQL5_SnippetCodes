@@ -25,7 +25,7 @@ bool createDBFile(void)
    dbHandle = DatabaseOpen(dbFile, DATABASE_OPEN_READWRITE|DATABASE_OPEN_CREATE|DATABASE_OPEN_COMMON);
    
    if(dbHandle == INVALID_HANDLE){
-      printf("Erro opening and creating DB [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro opening and creating DB [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(true);
    }
    
@@ -39,7 +39,7 @@ bool openDB(void)
    dbHandle = DatabaseOpen(dbFile, DATABASE_OPEN_READWRITE|DATABASE_OPEN_COMMON);
    
    if(dbHandle == INVALID_HANDLE){
-      printf("Erro opening DB [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro opening DB [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(true);
    }
    
@@ -93,56 +93,56 @@ struct MqlTradeTransaction
                          "POSITIONBY    INTEGER,"
                          "STATUS        CHAR(1));" // DB Register status
                          ) == false){
-      printf("Erro creating table TRADETRANS [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating table TRADETRANS [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
    
    if(DatabaseExecute(dbHandle, "CREATE INDEX TTIdx1 ON TRADETRANS(DATETIME);") == false){
-      printf("Erro creating index TTIdx1 (DATETIME) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TTIdx1 (DATETIME) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TTIdx2 ON TRADETRANS(TICKET);") == false){
-      printf("Erro creating index TTIdx2 (TICKET) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TTIdx2 (TICKET) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TTIdx3 ON TRADETRANS(SYMBOL);") == false){
-      printf("Erro creating index TTIdx3 (SYMBOL) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TTIdx3 (SYMBOL) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TTIdx4 ON TRADETRANS(TYPEREQ);") == false){
-      printf("Erro creating index TTIdx4 (TYPEREQ) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TTIdx4 (TYPEREQ) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TTIdx5 ON TRADETRANS(POSITION);") == false){
-      printf("Erro creating index TTIdx5 (POSITION) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TTIdx5 (POSITION) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TTIdx6 ON TRADETRANS(POSITIONBY);") == false){
-      printf("Erro creating index TTIdx6 (POSITIONBY) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TTIdx6 (POSITIONBY) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TTIdx7 ON TRADETRANS(STATUS);") == false){
-      printf("Erro creating index TTIdx7 (STATUS) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TTIdx7 (STATUS) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
@@ -184,35 +184,35 @@ struct MqlTradeResult
                          "RETCODEEXT INTEGER,"
                          "STATUS     CHAR(1));" // DB Register status
                          ) == false){
-      printf("Erro creating table TRADERESULT [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating table TRADERESULT [%s]: [%s]", dbFile, GetLastError());
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TRIdx1 ON TRADERESULT(DATETIME);") == false){
-      printf("Erro creating index TRIdx1 (DATETIME) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TRIdx1 (DATETIME) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TRIdx2 ON TRADERESULT(TICKET);") == false){
-      printf("Erro creating index TRIdx2 (TICKET) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TRIdx2 (TICKET) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TRIdx3 ON TRADERESULT(RETCODEEXT);") == false){
-      printf("Erro creating index TRIdx3 (RETCODEEXT) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TRIdx3 (RETCODEEXT) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TRIdx4 ON TRADERESULT(STATUS);") == false){
-      printf("Erro creating index TRIdx4 (STATUS) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TRIdx4 (STATUS) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
@@ -268,49 +268,49 @@ struct MqlTradeRequest
                          "POSITIONBY INTEGER,"
                          "STATUS     CHAR(1));" // DB Register status
                          ) == false){
-      printf("Erro creating table TRADEREQUEST [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating table TRADEREQUEST [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TRQIdx1 ON TRADEREQUEST(DATETIME);") == false){
-      printf("Erro creating index TRQIdx1 (DATETIME) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TRQIdx1 (DATETIME) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TRQIdx2 ON TRADEREQUEST(TICKET);") == false){
-      printf("Erro creating index TRQIdx2 (TICKET) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TRQIdx2 (TICKET) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TRQIdx3 ON TRADEREQUEST(SYMBOL);") == false){
-      printf("Erro creating index TRQIdx3 (SYMBOL) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TRQIdx3 (SYMBOL) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
    
    if(DatabaseExecute(dbHandle, "CREATE INDEX TRQIdx4 ON TRADEREQUEST(POSITION);") == false){
-      printf("Erro creating index TRQIdx4 (POSITION) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TRQIdx4 (POSITION) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TRQIdx5 ON TRADEREQUEST(POSITIONBY);") == false){
-      printf("Erro creating index TRQIdx5 (POSITIONBY) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TRQIdx5 (POSITIONBY) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 
    ResetLastError();
 
    if(DatabaseExecute(dbHandle, "CREATE INDEX TRQIdx6 ON TRADEREQUEST(STATUS);") == false){
-      printf("Erro creating index TRQIdx6 (STATUS) [%s]: [%d]", dbFile, GetLastError());
+      printf("Erro creating index TRQIdx6 (STATUS) [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
       return(false);
    }
 

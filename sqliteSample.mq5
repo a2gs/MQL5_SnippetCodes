@@ -4,6 +4,8 @@
 //|                              https://sites.google.com/view/a2gs/ |
 //+------------------------------------------------------------------+
 
+/* https://www.mql5.com/en/articles/7463 */
+
 const string dbFile = "database.sqlite";
 int dbHandle = INVALID_HANDLE;
 
@@ -458,85 +460,223 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
    DatabaseTransactionCommit(dbHandle);
 }
 
+void printTradeTransaction(void)
+{  /*                                           0       1      2       3        4        5       6      7  */
+   string selectQuery = StringFormat("SELECT DATETIME, DEAL, TICKET, VOLUME, PRICESL, PRICETP, PRICE, STATUS FROM TRADETRANS WHERE TYPEREQ IN (%d, %d);", TRADE_TRANSACTION_ORDER_ADD, TRADE_TRANSACTION_ORDER_DELETE);
+
+   printf("(%s)", selectQuery);
+
+   ResetLastError();
+   int request = DatabasePrepare(dbHandle, selectQuery);
+   if(request == INVALID_HANDLE){
+      printf("Error querying [%s] [%s]", selectQuery, sqlMsgError(GetLastError()));
+      return;
+   }
+
+   double price;
+   double volume;
+   long dttrans;
+   string status;
+   long deal;
+   long ticket;
+
+   unsigned int i;
+
+   ResetLastError();
+   for(i = 0; DatabaseRead(request) == true; i++){
+      price = volume = 0.0;
+      dttrans = deal = ticket = 0;
+      status = "";
+
+      ResetLastError();
+      if(DatabaseColumnLong(request, 0, dttrans) == false){
+         printf("Error tradetrans.dttrans[%s]", sqlMsgError(GetLastError()));
+         return;
+      }
+
+      ResetLastError();
+      if(DatabaseColumnLong(request, 1, deal) == false){
+         printf("Error tradetrans.deal[%s]", sqlMsgError(GetLastError()));
+         return;
+      }
+
+      ResetLastError();
+      if(DatabaseColumnLong(request, 2, ticket) == false){
+         printf("Error tradetrans.ticket[%s]", sqlMsgError(GetLastError()));
+         return;
+      }
+
+      ResetLastError();
+      if(DatabaseColumnDouble(request, 3, volume) == false){
+         printf("Error tradetrans.volume[%s]", sqlMsgError(GetLastError()));
+         return;
+      }
+
+      ResetLastError();
+      if(DatabaseColumnDouble(request, 6, price) == false){
+         printf("Error tradetrans.price[%s]", sqlMsgError(GetLastError()));
+         return;
+      }
+
+      ResetLastError();
+      if(DatabaseColumnText(request, 7, status) == false){
+         printf("Error tradetrans.status[%s]", sqlMsgError(GetLastError()));
+         return;
+      }
+
+      printf("Date[%s] Deal[%lu] Ticket[%lu] Vol[%f] Price[%f] Status[%s]",
+             TimeToString((datetime)dttrans, TIME_DATE|TIME_SECONDS),
+             deal, ticket, volume, price, status);
+
+      ResetLastError();
+   }
+   
+   printf("Total registers: [%u] Error (if happened): [%s]", i, sqlMsgError(GetLastError()));
+   DatabaseFinalize(request);
+}
+
+struct traderet_t{
+   long dttrans;
+   long retcode;
+   long deal;
+   long ticket;
+   string status;
+};
+
+void printTradeRequest()
+{
+   string selectQuery = "SELECT DATETIME, RETCODE, DEAL, TICKET, STATUS FROM TRADERESULT WHERE RETCODE <> 0;";
+
+   printf("(%s)", selectQuery);
+
+   ResetLastError();
+   int request = DatabasePrepare(dbHandle, selectQuery);
+   if(request == INVALID_HANDLE){
+      printf("Error querying [%s] [%s]", selectQuery, sqlMsgError(GetLastError()));
+      return;
+   }
+
+   unsigned int i;
+   traderet_t reg;
+
+   ResetLastError();
+   for(i = 0; DatabaseReadBind(request, reg); i++){
+      printf("Date[%s] Deal[%lu] Ticket[%lu] Return[%lu] Status[%s]",
+             TimeToString((datetime)reg.dttrans, TIME_DATE|TIME_SECONDS),
+             reg.deal, reg.ticket, reg.retcode, reg.status);
+      ResetLastError();
+   }
+
+   printf("Total registers: [%u] Error (if happened): [%s]", i, sqlMsgError(GetLastError()));
+   DatabaseFinalize(request);
+}
+
+void OnChartEvent(const int EventID,
+                  const long &lparam,
+                  const double &dparam,
+                  const string &sparam)
+{
+
+   if(EventID == CHARTEVENT_KEYDOWN){
+      short KeyThatWasPressed = TranslateKey((int) lparam);
+      
+       switch(KeyThatWasPressed){
+         case 'p':
+            printf("Current symbol [%s] trade transactions:", Symbol());
+            printTradeTransaction();
+
+            printf("\nCurrent symbol [%s] trade request:", Symbol());
+            printTradeRequest();
+
+            break;
+         
+         default:
+         break;
+      }
+   }
+   
+   return;
+}
+
 string sqlMsgError(int sqlErr)
 {
-	switch(sqlErr){
-		case ERR_INTERNAL_ERROR:
-			return("4001 - Critical runtime error");
-			break;
-		
-		case ERR_WRONG_INTERNAL_PARAMETER:
-			return("4002 - Internal error, while accessing the \"MQL5\\Files\" folder");
-			break;
-		
-		case ERR_INVALID_PARAMETER:
-			return("4003 - SQL parameter contains an empty string");
-			break;
-		
-		case ERR_NOT_ENOUGH_MEMORY:
-			return("4004 - Insufficient memory");
-			break;
-
-		case ERR_FUNCTION_NOT_ALLOWED:
-			return("4014 - Specified pipe is not allowed");
-			break;
-
-		case ERR_PROGRAM_STOPPED:
-			return("4022 - Operation canceled (MQL program stopped)");
-			break;
-		
-		case ERR_WRONG_FILENAME:
-			return("5002 - Wrong database file name");
-			break;
-		
-		case ERR_TOO_LONG_FILENAME:
-			return("5003 - Absolute path to the database file exceeds the maximum length");
-			break;
-
-		case ERR_CANNOT_OPEN_FILE:
-			return("5004 - Unable to open the file for writing");
-			break;
-
-		case ERR_FILE_WRITEERROR:
-			return("5026 - Unable to write to the file");
-			break;
-		
-		case ERR_WRONG_STRING_PARAMETER:
-			return("5040 - Error converting a request into a UTF-8 string");
-			break;
-		
-		case ERR_DATABASE_INTERNAL:
-			return("5120 - Internal database error");
-			break;
-		
-		case ERR_DATABASE_INVALID_HANDLE:
-			return("5121 - Invalid database handle");
-			break;
-		
-		case ERR_DATABASE_TOO_MANY_OBJECTS:
-			return("5122 - Exceeded the maximum acceptable number of Database objects");
-			break;
-		
-		case ERR_DATABASE_CONNECT:
-			return("5123 - Database connection error");
-			break;
-		
-		case ERR_DATABASE_EXECUTE:
-			return("5124 - Request execution error");
-			break;
-		
-		case ERR_DATABASE_PREPARE:
-			return("5125 - Request generation error");
-			break;
-
-		case ERR_DATABASE_NO_MORE_DATA:
-			return("5126 - No table exists (not an error, normal completion)");
-			break;
-
-		case ERR_DATABASE_QUERY_NOT_READONLY:
-			return("read-only request is allowed");
-			break;
-	}
-	
-	return(StringFormat("%d - Unknow code", sqlErr));
+   switch(sqlErr){
+      case ERR_INTERNAL_ERROR:
+         return("4001 - Critical runtime error");
+         break;
+      
+      case ERR_WRONG_INTERNAL_PARAMETER:
+         return("4002 - Internal error, while accessing the \"MQL5\\Files\" folder");
+         break;
+      
+      case ERR_INVALID_PARAMETER:
+         return("4003 - SQL parameter contains an empty string");
+         break;
+      
+      case ERR_NOT_ENOUGH_MEMORY:
+         return("4004 - Insufficient memory");
+         break;
+      
+      case ERR_FUNCTION_NOT_ALLOWED:
+         return("4014 - Specified pipe is not allowed");
+         break;
+      
+      case ERR_PROGRAM_STOPPED:
+         return("4022 - Operation canceled (MQL program stopped)");
+         break;
+      
+      case ERR_WRONG_FILENAME:
+         return("5002 - Wrong database file name");
+         break;
+      
+      case ERR_TOO_LONG_FILENAME:
+         return("5003 - Absolute path to the database file exceeds the maximum length");
+         break;
+      
+      case ERR_CANNOT_OPEN_FILE:
+         return("5004 - Unable to open the file for writing");
+         break;
+      
+      case ERR_FILE_WRITEERROR:
+         return("5026 - Unable to write to the file");
+         break;
+      
+      case ERR_WRONG_STRING_PARAMETER:
+         return("5040 - Error converting a request into a UTF-8 string");
+         break;
+      
+      case ERR_DATABASE_INTERNAL:
+         return("5120 - Internal database error");
+         break;
+      
+      case ERR_DATABASE_INVALID_HANDLE:
+         return("5121 - Invalid database handle");
+         break;
+      
+      case ERR_DATABASE_TOO_MANY_OBJECTS:
+         return("5122 - Exceeded the maximum acceptable number of Database objects");
+         break;
+      
+      case ERR_DATABASE_CONNECT:
+         return("5123 - Database connection error");
+         break;
+      
+      case ERR_DATABASE_EXECUTE:
+         return("5124 - Request execution error");
+         break;
+      
+      case ERR_DATABASE_PREPARE:
+         return("5125 - Request generation error");
+         break;
+      
+      case ERR_DATABASE_NO_MORE_DATA:
+         return("5126 - No table exists (not an error, normal completion)");
+         break;
+      
+      case ERR_DATABASE_QUERY_NOT_READONLY:
+         return("read-only request is allowed");
+         break;
+   }
+   
+   return(StringFormat("%d - Unknow code", sqlErr));
 }

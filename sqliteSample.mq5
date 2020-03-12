@@ -394,22 +394,24 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
 {
    datetime dbtime = TimeLocal();
 
+   DatabaseTransactionBegin(dbHandle);
+
    if(insertTradeTransaction(trans, dbtime) == false){
       DatabaseTransactionRollback(dbHandle);
       Print("Rollback TradeTransaction!");
-      return;
+      //return;
    }
 
    if(insertTradeRequest(request, dbtime) == false){
       DatabaseTransactionRollback(dbHandle);
       Print("Rollback TradeRequest!");
-      return;
+      //return;
    }
 
    if(insertTradeResult(result, dbtime) == false){
       DatabaseTransactionRollback(dbHandle);
       Print("Rollback TradeResult!");
-      return;
+      //return;
    }
 
    DatabaseTransactionCommit(dbHandle);

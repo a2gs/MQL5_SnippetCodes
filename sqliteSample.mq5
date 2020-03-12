@@ -457,3 +457,86 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
 
    DatabaseTransactionCommit(dbHandle);
 }
+
+string sqlMsgError(int sqlErr)
+{
+	switch(sqlErr){
+		case ERR_INTERNAL_ERROR:
+			return("4001 - Critical runtime error");
+			break;
+		
+		case ERR_WRONG_INTERNAL_PARAMETER:
+			return("4002 - Internal error, while accessing the \"MQL5\\Files\" folder");
+			break;
+		
+		case ERR_INVALID_PARAMETER:
+			return("4003 - SQL parameter contains an empty string");
+			break;
+		
+		case ERR_NOT_ENOUGH_MEMORY:
+			return("4004 - Insufficient memory");
+			break;
+
+		case ERR_FUNCTION_NOT_ALLOWED:
+			return("4014 - Specified pipe is not allowed");
+			break;
+
+		case ERR_PROGRAM_STOPPED:
+			return("4022 - Operation canceled (MQL program stopped)");
+			break;
+		
+		case ERR_WRONG_FILENAME:
+			return("5002 - Wrong database file name");
+			break;
+		
+		case ERR_TOO_LONG_FILENAME:
+			return("5003 - Absolute path to the database file exceeds the maximum length");
+			break;
+
+		case ERR_CANNOT_OPEN_FILE:
+			return("5004 - Unable to open the file for writing");
+			break;
+
+		case ERR_FILE_WRITEERROR:
+			return("5026 - Unable to write to the file");
+			break;
+		
+		case ERR_WRONG_STRING_PARAMETER:
+			return("5040 - Error converting a request into a UTF-8 string");
+			break;
+		
+		case ERR_DATABASE_INTERNAL:
+			return("5120 - Internal database error");
+			break;
+		
+		case ERR_DATABASE_INVALID_HANDLE:
+			return("5121 - Invalid database handle");
+			break;
+		
+		case ERR_DATABASE_TOO_MANY_OBJECTS:
+			return("5122 - Exceeded the maximum acceptable number of Database objects");
+			break;
+		
+		case ERR_DATABASE_CONNECT:
+			return("5123 - Database connection error");
+			break;
+		
+		case ERR_DATABASE_EXECUTE:
+			return("5124 - Request execution error");
+			break;
+		
+		case ERR_DATABASE_PREPARE:
+			return("5125 - Request generation error");
+			break;
+
+		case ERR_DATABASE_NO_MORE_DATA:
+			return("5126 - No table exists (not an error, normal completion)");
+			break;
+
+		case ERR_DATABASE_QUERY_NOT_READONLY:
+			return("read-only request is allowed");
+			break;
+	}
+	
+	return(StringFormat("%d - Unknow code", sqlErr));
+}

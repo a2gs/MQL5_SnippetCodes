@@ -28,7 +28,7 @@ bool createDBFile(void)
    
    if(dbHandle == INVALID_HANDLE){
       printf("Erro opening and creating DB [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
-      return(true);
+      return(false);
    }
    
    return(true);
@@ -42,7 +42,7 @@ bool openDB(void)
    
    if(dbHandle == INVALID_HANDLE){
       printf("Erro opening DB [%s]: [%s]", dbFile, sqlMsgError(GetLastError()));
-      return(true);
+      return(false);
    }
    
    return(true);
@@ -319,7 +319,7 @@ struct MqlTradeRequest
    return(true);
 }
 
-int OnInit()
+int OnInit(void)
 {
    if(FileIsExist(dbFile, FILE_COMMON) == false){
       if(createDBFile() == false){
@@ -543,7 +543,7 @@ struct traderet_t{
    string status;
 };
 
-void printTradeRequest()
+void printTradeRequest(void)
 {
    string selectQuery = "SELECT DATETIME, RETCODE, DEAL, TICKET, STATUS FROM TRADERESULT WHERE RETCODE <> 0;";
 
